@@ -7,8 +7,8 @@ on:
     branches: [ dev ]
 
 jobs:
-  execution-check:
-    name: Execution Check
+  functional-test:
+    name: Functional Tests (BATS)
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -16,12 +16,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Validate sysinfo
+      - name: Install BATS
         run: |
-          chmod +x bin/sysinfo
-          ./bin/sysinfo
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            sudo apt-get update && sudo apt-get install -y bats
+          else
+            brew install bats-core
+          fi
           
-      - name: Validate heavy
+      - name: Run BATS Suite
         run: |
-          chmod +x bin/heavy
-          ./bin/heavy .
+          chmod +x bin/*
+          bats tests/

@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Manis Aliases - Sourced for shell productivity
 
 # Git

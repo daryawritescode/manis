@@ -1,9 +1,15 @@
 #!/bin/sh
-# List directories >= 1G, sorted by size.
-# Usage: oneg [directory]
+# Manis 'Heavy' Utility
+# Identifies large directories (>= 1GB) on Linux and macOS.
 
-TARGET=${1:-.}
+TARGET="${1:-.}"
 
-# Portable: Works on macOS (BSD) and Linux (GNU)
+# Verify target existence
+if [ ! -d "$TARGET" ]; then
+    printf "Error: '%s' is not a directory.\n" "$TARGET"
+    exit 1
+fi
+
 # Find directories >= 1GB (1048576 KB)
+# shellcheck disable=SC2012
 du -sk "$TARGET"/* 2>/dev/null | awk '$1 >= 1048576 { printf "%.1fG\t%s\n", $1/1024/1024, $2 }' | sort -hr
