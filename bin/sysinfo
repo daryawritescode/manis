@@ -21,8 +21,10 @@ hostname
 print_label "OS:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     printf "macOS %s (%s)\n" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)"
+elif [[ -f /etc/os-release ]]; then
+    grep PRETTY_NAME /etc/os-release | cut -d'"' -f2
 else
-    [[ -f /etc/os-release ]] && grep PRETTY_NAME /etc/os-release | cut -d'"' -f2 || uname -sr
+    uname -sr
 fi
 
 # 2. Hardware
