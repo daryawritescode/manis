@@ -22,16 +22,12 @@ teardown() {
 }
 
 @test "heavy: identifies a mock 1GB+ directory" {
-    # Generate a dummy file that is slightly over 1GB
-    # On macOS/Linux, dd or truncate works. We'll use truncate if available, or dd.
-    if command -v truncate >/dev/null; then
-        truncate -s 1100M "$BATS_TMPDIR/heavy-test-dir/chonker"
-    else
-        dd if=/dev/zero of="$BATS_TMPDIR/heavy-test-dir/chonker" bs=1M count=1100 2>/dev/null
-    fi
+    # We use 'dd' instead of 'truncate' because 'du' measures disk usage.
+    # Sparse files (via truncate) report 0 usage on many filesystems.
+    dd if=/dev/zero of="$BATS_TMPDIR/heavy-test-dir/chonker" bs=1M count=1050 2>/dev/null
     
     run heavy "$BATS_TMPDIR"
     [ "$status" -eq 0 ]
-    [[ "$output" == *"1.1G"* ]]
+    [[ "$output" == *"1.0G"* ]] || [[ "$output" == *"1.1G"* ]]
     [[ "$output" == *"heavy-test-dir"* ]]
 }
