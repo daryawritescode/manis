@@ -63,6 +63,20 @@ Automated checks are executed via GitHub Actions on every push to the `dev` bran
 - **Linting**: Enforced via `shellcheck` for POSIX and Bash compliance.
 - **Functional Check**: Automated `bats` execution on `ubuntu-latest` and `macos-latest`.
 
+### Local Verification
+To run the linter and test suite on your local machine:
+
+```bash
+# 1. Install dependencies
+brew install shellcheck bats-core
+
+# 2. Run the linter
+shellcheck bin/* lib/*
+
+# 3. Run the tests
+bats tests/
+```
+
 ---
 
 ## 🖋️ Colophon

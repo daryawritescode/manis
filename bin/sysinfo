@@ -20,18 +20,15 @@ hostname
 
 print_label "OS:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # shellcheck disable=SC2005
-    echo "macOS $(sw_vers -productVersion) ($(sw_vers -buildVersion))"
+    printf "macOS %s (%s)\n" "$(sw_vers -productVersion)" "$(sw_vers -buildVersion)"
 else
-    # shellcheck disable=SC2005
     [[ -f /etc/os-release ]] && grep PRETTY_NAME /etc/os-release | cut -d'"' -f2 || uname -sr
 fi
 
 # 2. Hardware
 print_label "Model:"
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    # shellcheck disable=SC2005
-    echo "$(sysctl -n machdep.cpu.brand_string | sed 's/(TM)//g; s/(R)//g')"
+    sysctl -n machdep.cpu.brand_string | sed 's/(TM)//g; s/(R)//g'
 else
     grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | sed 's/^[ \t]*//' || echo "Unknown"
 fi
@@ -40,12 +37,10 @@ echo -e "\n${BOLD}--- System ---${NC}"
 
 # 3. Uptime & Load
 print_label "Uptime:"
-# shellcheck disable=SC2005
-echo "$(uptime | sed -E 's/^.*up +([^,]+),.*$/\1/' | sed 's/^[ \t]*//')"
+uptime | sed -E 's/^.*up +([^,]+),.*$/\1/' | sed 's/^[ \t]*//'
 
 print_label "Load:"
-# shellcheck disable=SC2005
-echo "$(uptime | awk -F'load averages?: ' '{ print $2 }' | sed 's/^[ \t]*//')"
+uptime | awk -F'load averages?: ' '{ print $2 }' | sed 's/^[ \t]*//'
 
 # 4. Storage & Memory
 print_label "Disk (/):"
@@ -64,8 +59,7 @@ echo -e "\n${BOLD}--- Network ---${NC}"
 # 5. Networking
 print_label "Local IP:"
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    # shellcheck disable=SC2005
-    echo "$(hostname -I | awk '{print $1}')"
+    hostname -I | awk '{print $1}'
 else
     # macOS: Try to find the primary interface IP
     INTERNAL_IP=$(ipconfig getifaddr "$(route get default 2>/dev/null | grep interface | awk '{print $2}')")
@@ -76,11 +70,11 @@ else
 fi
 
 print_label "Pub IPv4:"
-export IPV4=$(curl -4 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
+IPV4=$(curl -4 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
 echo "$IPV4"
 
 print_label "Pub IPv6:"
-export IPV6=$(curl -6 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
+IPV6=$(curl -6 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
 echo "$IPV6"
 
 echo ""
