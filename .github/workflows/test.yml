@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  execution-check:
+    name: Execution Check
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate sysinfo
+        run: |
+          chmod +x bin/sysinfo
+          ./bin/sysinfo
+          
+      - name: Validate heavy
+        run: |
+          chmod +x bin/heavy
+          ./bin/heavy .

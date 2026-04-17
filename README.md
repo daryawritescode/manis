@@ -1,4 +1,7 @@
 # 🍬 Manis
+[![Lint](https://github.com/daryawritescode/manis/actions/workflows/lint.yml/badge.svg?branch=dev)](https://github.com/daryawritescode/manis/actions/workflows/lint.yml)
+[![Test](https://github.com/daryawritescode/manis/actions/workflows/test.yml/badge.svg?branch=dev)](https://github.com/daryawritescode/manis/actions/workflows/test.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Manis is a focused collection of shell scripts, aliases, and functions designed to unify and accelerate terminal workflows. It prioritizes portability and immediate utility over complex configuration.
 
