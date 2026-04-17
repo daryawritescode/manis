@@ -1,0 +1,9 @@
+#!/bin/sh
+# List directories >= 1G, sorted by size.
+# Usage: oneg [directory]
+
+TARGET=${1:-.}
+
+# Portable: Works on macOS (BSD) and Linux (GNU)
+# Find directories >= 1GB (1048576 KB)
+du -sk "$TARGET"/* 2>/dev/null | awk '$1 >= 1048576 { printf "%.1fG\t%s\n", $1/1024/1024, $2 }' | sort -hr

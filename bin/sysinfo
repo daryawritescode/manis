@@ -1,0 +1,73 @@
+#!/bin/bash
+# System Info Script - Portable for Linux/macOS
+
+# Colors
+BOLD='\033[1m'
+NC='\033[0m'
+BLUE='\033[34m'
+
+echo -e "\n${BOLD}--- Host ---${NC}"
+
+# Helper function for aligned labels
+print_label() {
+    printf "${BLUE}%-12s${NC} " "$1"
+}
+
+# 1. Host & OS
+print_label "Host:"
+hostname
+
+print_label "OS:"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    echo "macOS $(sw_vers -productVersion) ($(sw_vers -buildVersion))"
+else
+    [[ -f /etc/os-release ]] && grep PRETTY_NAME /etc/os-release | cut -d'"' -f2 || uname -sr
+fi
+
+# 2. Hardware
+print_label "Model:"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sysctl -n machdep.cpu.brand_string | sed 's/(TM)//g; s/(R)//g'
+else
+    grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | sed 's/^[ \t]*//' || echo "Unknown"
+fi
+
+echo -e "\n${BOLD}--- System ---${NC}"
+# 3. Uptime & Load
+print_label "Uptime:"
+uptime | sed -E 's/^.*up +([^,]+),.*$/\1/' | sed 's/^[ \t]*//'
+
+print_label "Load:"
+uptime | awk -F'load averages?: ' '{ print $2 }' | sed 's/^[ \t]*//'
+
+# 4. Storage & Memory
+print_label "Disk (/):"
+df -h / | awk 'NR==2 {print $3 "/" $2 " (" $5 ")"}'
+
+print_label "Memory:"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    free -h | awk '/^Mem:/ {print $3 "/" $2}'
+else
+    # macOS calculation
+    vm_stat | perl -ne '/page size of (\d+)/ && ($s=$1); /Pages active:\s+(\d+)/ && ($a=$1); /Pages wired down:\s+(\d+)/ && ($w=$1); END { printf "%.1fG used\n", (($a+$w)*$s)/1024**3 }'
+fi
+
+echo -e "\n${BOLD}--- Network ---${NC}"
+# 5. Networking
+print_label "Local IP:"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo $(hostname -I | awk '{print $1}')
+else
+    INTERNAL_IP=$(ipconfig getifaddr $(route get default 2>/dev/null | grep interface | awk '{print $2}'))
+    echo "${INTERNAL_IP:-Unknown}"
+fi
+
+print_label "Pub IPv4:"
+export IPV4=$(curl -4 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
+echo "$IPV4"
+
+print_label "Pub IPv6:"
+export IPV6=$(curl -6 -s --connect-timeout 2 https://ifconfig.me || echo "Unknown")
+echo "$IPV6"
+
+echo ""
